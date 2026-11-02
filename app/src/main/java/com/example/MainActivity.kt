@@ -59,6 +59,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.ui.components.AiPromptGeneratorScreen
 import com.example.ui.components.ExplorerScreen
 import com.example.ui.components.FavoritesScreen
 import com.example.ui.components.StudioGeneratorScreen
@@ -70,6 +71,7 @@ import com.example.ui.theme.CinemaSurface
 import com.example.ui.theme.GoldPrimary
 import com.example.ui.theme.HeartRed
 import com.example.ui.theme.MyApplicationTheme
+import com.example.ui.theme.NebulaTeal
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextWhitePrimary
 import com.example.ui.viewmodel.AppTab
@@ -101,6 +103,11 @@ fun MainAppScreen(viewModel: MainViewModel) {
     val savedFavorites by viewModel.savedFavorites.collectAsStateWithLifecycle()
     val currentBundle by viewModel.currentPromptBundle.collectAsStateWithLifecycle()
     val userFeedback by viewModel.userFeedback.collectAsStateWithLifecycle()
+
+    val aiSiteName by viewModel.aiSiteName.collectAsStateWithLifecycle()
+    val aiCameraAngle by viewModel.aiCameraAngle.collectAsStateWithLifecycle()
+    val aiLensType by viewModel.aiLensType.collectAsStateWithLifecycle()
+    val aiGenerationState by viewModel.aiGenerationState.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -247,7 +254,30 @@ fun MainAppScreen(viewModel: MainViewModel) {
                     modifier = Modifier.testTag("nav_tab_generator")
                 )
 
-                // Tab 3: Persistent Favorites (with Heart Icon & Count Badge)
+                // Tab 3: Gemini AI Prompt Creator
+                NavigationBarItem(
+                    selected = activeTab == AppTab.AI_GENERATOR,
+                    onClick = { viewModel.setTab(AppTab.AI_GENERATOR) },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.AutoAwesome,
+                            contentDescription = "Gemini AI",
+                            tint = if (activeTab == AppTab.AI_GENERATOR) NebulaTeal else TextMuted,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    },
+                    label = { Text("Gemini AI", fontSize = 11.sp) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = NebulaTeal,
+                        selectedTextColor = NebulaTeal,
+                        unselectedIconColor = TextMuted,
+                        unselectedTextColor = TextMuted,
+                        indicatorColor = NebulaTeal.copy(alpha = 0.15f)
+                    ),
+                    modifier = Modifier.testTag("nav_tab_ai")
+                )
+
+                // Tab 4: Persistent Favorites (with Heart Icon & Count Badge)
                 NavigationBarItem(
                     selected = activeTab == AppTab.FAVORITES,
                     onClick = { viewModel.setTab(AppTab.FAVORITES) },
@@ -334,6 +364,21 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         onSelectLighting = { viewModel.setLighting(it) },
                         onSelectVfx = { viewModel.setVfx(it) },
                         onSelectDimension = { viewModel.setDimension(it) },
+                        onFeedback = { viewModel.postFeedback(it) }
+                    )
+                }
+
+                AppTab.AI_GENERATOR -> {
+                    AiPromptGeneratorScreen(
+                        siteName = aiSiteName,
+                        cameraAngle = aiCameraAngle,
+                        lensType = aiLensType,
+                        onSiteNameChange = { viewModel.setAiSiteName(it) },
+                        onCameraAngleChange = { viewModel.setAiCameraAngle(it) },
+                        onLensTypeChange = { viewModel.setAiLensType(it) },
+                        generationState = aiGenerationState,
+                        onGenerateClick = { viewModel.generateWithGemini() },
+                        onSaveFavoritePrompt = { site, prompt -> viewModel.saveAiPromptFavorite(site, prompt) },
                         onFeedback = { viewModel.postFeedback(it) }
                     )
                 }
