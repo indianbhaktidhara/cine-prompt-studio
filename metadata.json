@@ -1,0 +1,6 @@
+{
+  "name": "CinePrompt Studio",
+  "description": "OTT cinematic image prompt generator for sacred heritage sites, gurudwaras, and temples with director styles, VFX parameters, and favorites storage.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
